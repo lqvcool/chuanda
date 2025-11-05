@@ -14,8 +14,9 @@ const updateOutfitSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -24,7 +25,7 @@ export async function GET(
 
     const outfit = await prisma.outfit.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       },
       include: {
@@ -52,8 +53,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -66,7 +68,7 @@ export async function PUT(
     // 检查搭配方案是否存在且属于当前用户
     const existingOutfit = await prisma.outfit.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -91,13 +93,13 @@ export async function PUT(
 
       // 删除原有的搭配项目
       await prisma.outfitItem.deleteMany({
-        where: { outfitId: params.id }
+        where: { outfitId: id }
       })
 
       // 创建新的搭配项目
       await prisma.outfitItem.createMany({
         data: validatedData.clothingIds.map(clothingId => ({
-          outfitId: params.id,
+          outfitId: id,
           clothingId
         }))
       })
@@ -106,13 +108,13 @@ export async function PUT(
     // 更新搭配方案信息
     const { clothingIds, ...updateData } = validatedData
     const updatedOutfit = await prisma.outfit.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData
     })
 
     // 获取完整的搭配信息
     const result = await prisma.outfit.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         items: {
           include: {
@@ -126,7 +128,7 @@ export async function PUT(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.issues[0].message },
         { status: 400 }
       )
     }
@@ -141,8 +143,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -152,7 +155,7 @@ export async function DELETE(
     // 检查搭配方案是否存在且属于当前用户
     const existingOutfit = await prisma.outfit.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -163,7 +166,7 @@ export async function DELETE(
 
     // 删除搭配方案（会级联删除搭配项目）
     await prisma.outfit.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     return NextResponse.json({ message: '删除成功' })

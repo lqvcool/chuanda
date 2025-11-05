@@ -16,8 +16,9 @@ const updateClothingSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -26,7 +27,7 @@ export async function GET(
 
     const clothing = await prisma.clothing.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -47,8 +48,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -61,7 +63,7 @@ export async function PUT(
     // 检查衣物是否存在且属于当前用户
     const existingClothing = await prisma.clothing.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -72,7 +74,7 @@ export async function PUT(
 
     // 更新衣物
     const updatedClothing = await prisma.clothing.update({
-      where: { id: params.id },
+      where: { id: id },
       data: validatedData
     })
 
@@ -80,7 +82,7 @@ export async function PUT(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.issues[0].message },
         { status: 400 }
       )
     }
@@ -95,8 +97,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -106,7 +109,7 @@ export async function DELETE(
     // 检查衣物是否存在且属于当前用户
     const existingClothing = await prisma.clothing.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -117,7 +120,7 @@ export async function DELETE(
 
     // 删除衣物记录
     await prisma.clothing.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     // TODO: 删除对应的图片文件
