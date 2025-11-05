@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Clothing, ClothingCategory, Season } from '@prisma/client'
 
 // 颜色搭配规则
 const colorCombinations = {
@@ -63,20 +64,20 @@ export async function POST(request: NextRequest) {
     // 根据季节筛选
     let seasonalClothings = allClothings
     if (season && season !== 'ALL_SEASON') {
-      seasonalClothings = allClothings.filter(item =>
+      seasonalClothings = allClothings.filter((item: Clothing) =>
         !item.season || item.season === season || item.season === 'ALL_SEASON'
       )
     }
 
     // 按分类分组
     const categorizedClothings = {
-      TOP: seasonalClothings.filter(item => item.category === 'TOP'),
-      BOTTOM: seasonalClothings.filter(item => item.category === 'BOTTOM'),
-      DRESS: seasonalClothings.filter(item => item.category === 'DRESS'),
-      SHOES: seasonalClothings.filter(item => item.category === 'SHOES'),
-      HAT: seasonalClothings.filter(item => item.category === 'HAT'),
-      ACCESSORY: seasonalClothings.filter(item => item.category === 'ACCESSORY'),
-      OUTERWEAR: seasonalClothings.filter(item => item.category === 'OUTERWEAR'),
+      TOP: seasonalClothings.filter((item: Clothing) => item.category === 'TOP'),
+      BOTTOM: seasonalClothings.filter((item: Clothing) => item.category === 'BOTTOM'),
+      DRESS: seasonalClothings.filter((item: Clothing) => item.category === 'DRESS'),
+      SHOES: seasonalClothings.filter((item: Clothing) => item.category === 'SHOES'),
+      HAT: seasonalClothings.filter((item: Clothing) => item.category === 'HAT'),
+      ACCESSORY: seasonalClothings.filter((item: Clothing) => item.category === 'ACCESSORY'),
+      OUTERWEAR: seasonalClothings.filter((item: Clothing) => item.category === 'OUTERWEAR'),
     }
 
     // 生成搭配建议
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function findMatchingItems(baseItem: any, candidates: any[], colorPreference?: string) {
+function findMatchingItems(baseItem: Clothing, candidates: Clothing[], colorPreference?: string) {
   if (!candidates || candidates.length === 0) return []
 
   let scored = candidates.map(item => {
@@ -184,10 +185,10 @@ function findMatchingItems(baseItem: any, candidates: any[], colorPreference?: s
 
   // 按评分排序并返回最佳匹配
   scored.sort((a, b) => b.score - a.score)
-  return scored.map(s => s.item).filter(item => item.score > 0)
+  return scored.map(s => s.item)
 }
 
-function generateReason(item1: any, item2: any | null, occasion?: string) {
+function generateReason(item1: Clothing, item2: Clothing | null, occasion?: string) {
   const colorMatch = colorCombinations[item1.color as keyof typeof colorCombinations]?.includes(item2?.color || '')
 
   let reason = `${item1.name}`
