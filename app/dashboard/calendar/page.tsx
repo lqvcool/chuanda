@@ -165,7 +165,7 @@ export default function CalendarPage() {
     return days
   }
 
-  const getOutfitLogForDate = (date: Date) => {
+  const getOutfitLogForDate = (date: Date | null) => {
     if (!date) return null
     const dateStr = date.toDateString()
     return outfitLogs.find(log => new Date(log.wornDate).toDateString() === dateStr)

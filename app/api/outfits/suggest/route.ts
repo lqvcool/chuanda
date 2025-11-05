@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { Clothing, ClothingCategory, Season } from '@prisma/client'
+import type { Clothing, ClothingCategory, Season } from '@prisma/client'
 
 // 颜色搭配规则
 const colorCombinations = {
