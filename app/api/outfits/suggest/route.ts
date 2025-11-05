@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import type { Clothing, ClothingCategory, Season } from '@prisma/client'
+
+// 从 Prisma 查询推断类型，避免直接导入 Prisma 类型
+type Clothing = Awaited<ReturnType<typeof prisma.clothing.findFirst>>
+type ClothingCategory = 'TOP' | 'BOTTOM' | 'DRESS' | 'SHOES' | 'HAT' | 'ACCESSORY' | 'OUTERWEAR' | 'UNDERWEAR' | 'SOCKS' | 'BAG'
+type Season = 'SPRING' | 'SUMMER' | 'AUTUMN' | 'WINTER' | 'ALL_SEASON'
 
 // 颜色搭配规则
 const colorCombinations = {
