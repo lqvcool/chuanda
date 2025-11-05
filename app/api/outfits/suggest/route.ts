@@ -4,7 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 // 从 Prisma 查询推断类型，避免直接导入 Prisma 类型
-type Clothing = Awaited<ReturnType<typeof prisma.clothing.findFirst>>
+type ClothingFromPrisma = Awaited<ReturnType<typeof prisma.clothing.findFirst>>
+type Clothing = NonNullable<ClothingFromPrisma>
 type ClothingCategory = 'TOP' | 'BOTTOM' | 'DRESS' | 'SHOES' | 'HAT' | 'ACCESSORY' | 'OUTERWEAR' | 'UNDERWEAR' | 'SOCKS' | 'BAG'
 type Season = 'SPRING' | 'SUMMER' | 'AUTUMN' | 'WINTER' | 'ALL_SEASON'
 
@@ -68,20 +69,20 @@ export async function POST(request: NextRequest) {
     // 根据季节筛选
     let seasonalClothings = allClothings
     if (season && season !== 'ALL_SEASON') {
-      seasonalClothings = allClothings.filter((item: Clothing) =>
-        !item.season || item.season === season || item.season === 'ALL_SEASON'
+      seasonalClothings = allClothings.filter((item: Clothing | null): item is Clothing =>
+        item !== null && (!item.season || item.season === season || item.season === 'ALL_SEASON')
       )
     }
 
     // 按分类分组
     const categorizedClothings = {
-      TOP: seasonalClothings.filter((item: Clothing) => item.category === 'TOP'),
-      BOTTOM: seasonalClothings.filter((item: Clothing) => item.category === 'BOTTOM'),
-      DRESS: seasonalClothings.filter((item: Clothing) => item.category === 'DRESS'),
-      SHOES: seasonalClothings.filter((item: Clothing) => item.category === 'SHOES'),
-      HAT: seasonalClothings.filter((item: Clothing) => item.category === 'HAT'),
-      ACCESSORY: seasonalClothings.filter((item: Clothing) => item.category === 'ACCESSORY'),
-      OUTERWEAR: seasonalClothings.filter((item: Clothing) => item.category === 'OUTERWEAR'),
+      TOP: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'TOP'),
+      BOTTOM: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'BOTTOM'),
+      DRESS: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'DRESS'),
+      SHOES: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'SHOES'),
+      HAT: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'HAT'),
+      ACCESSORY: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'ACCESSORY'),
+      OUTERWEAR: seasonalClothings.filter((item: Clothing | null): item is Clothing => item !== null && item.category === 'OUTERWEAR'),
     }
 
     // 生成搭配建议
@@ -193,7 +194,7 @@ function findMatchingItems(baseItem: Clothing, candidates: Clothing[], colorPref
 }
 
 function generateReason(item1: Clothing, item2: Clothing | null, occasion?: string) {
-  const colorMatch = colorCombinations[item1.color as keyof typeof colorCombinations]?.includes(item2?.color || '')
+  const colorMatch = item2 ? colorCombinations[item1.color as keyof typeof colorCombinations]?.includes(item2.color) : false
 
   let reason = `${item1.name}`
   if (item2) {
