@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { SessionProviderWrapper } from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -9,7 +10,11 @@ export const metadata: Metadata = {
   description: "基于 Next.js 的智能衣橱管理和穿搭推荐系统",
   keywords: ["衣橱管理", "穿搭推荐", "智能搭配", "AI", "时尚"],
   authors: [{ name: "MiniMax Agent" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -20,9 +25,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50">
-          {children}
-        </div>
+        <SessionProviderWrapper>
+          <div className="min-h-screen bg-gray-50">
+            {children}
+          </div>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
