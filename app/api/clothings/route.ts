@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getClothingsByUserId, createClothing } from '@/lib/db'
 import { writeFile } from 'fs/promises'
 import path from 'path'
 import { z } from 'zod'
@@ -27,24 +27,20 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     const season = searchParams.get('season')
 
-    const where: any = {
-      userId: session.user.id
-    }
+    // 获取所有衣物，然后在内存中过滤（简化实现）
+    const clothings = await getClothingsByUserId(session.user.id)
+
+    let filteredClothings = clothings
 
     if (category) {
-      where.category = category
+      filteredClothings = filteredClothings.filter(c => c.category === category)
     }
 
     if (season) {
-      where.season = season
+      filteredClothings = filteredClothings.filter(c => c.season === season)
     }
 
-    const clothings = await prisma.clothing.findMany({
-      where,
-      orderBy: { createdAt: 'desc' }
-    })
-
-    return NextResponse.json(clothings)
+    return NextResponse.json(filteredClothings)
   } catch (error) {
     console.error('获取衣物列表失败:', error)
     return NextResponse.json(
@@ -103,18 +99,16 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, buffer)
 
     // 保存到数据库
-    const clothing = await prisma.clothing.create({
-      data: {
-        userId: session.user.id,
-        name: validatedData.name,
-        category: validatedData.category,
-        color: validatedData.color,
-        brand: validatedData.brand,
-        size: validatedData.size,
-        season: validatedData.season,
-        tags: validatedData.tags,
-        imageUrl: `/uploads/${fileName}`
-      }
+    const clothing = await createClothing({
+      userId: session.user.id,
+      name: validatedData.name,
+      category: validatedData.category,
+      color: validatedData.color,
+      brand: validatedData.brand,
+      size: validatedData.size,
+      season: validatedData.season,
+      tags: validatedData.tags,
+      imageUrl: `/uploads/${fileName}`
     })
 
     return NextResponse.json(clothing)

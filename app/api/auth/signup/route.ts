@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
+import { createUser, getUserByEmail } from '@/lib/db'
 import { z } from 'zod'
 
 const signupSchema = z.object({
@@ -15,9 +15,7 @@ export async function POST(request: NextRequest) {
     const { name, email, password } = signupSchema.parse(body)
 
     // 检查用户是否已存在
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
+    const existingUser = await getUserByEmail(email)
 
     if (existingUser) {
       return NextResponse.json(
@@ -30,12 +28,10 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // 创建用户
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword
-      }
+    const user = await createUser({
+      name,
+      email,
+      password: hashedPassword
     })
 
     return NextResponse.json({
