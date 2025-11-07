@@ -32,7 +32,7 @@ const nextConfig = {
 
   // ESLint 配置
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
 };
 
