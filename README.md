@@ -1,6 +1,8 @@
-# 穿衣搭配 - 智能衣橱管理系统
+# 穿衣搭配 - 智能衣橱管理系统 🚀
 
 一个基于 Next.js 的智能衣橱管理和穿搭推荐系统，帮助用户管理衣物、获取搭配建议。
+
+**✨ Vercel 优化版本：已迁移到 Vercel Postgres，完全兼容 Vercel 部署**
 
 ## 🌟 功能特性
 
@@ -37,16 +39,55 @@
 
 ## 🚀 技术栈
 
-- **前端框架**：Next.js 16 + React 19
+- **前端框架**：Next.js 14.2.5 + React 18.3.1
 - **类型安全**：TypeScript
-- **样式框架**：Tailwind CSS 4
-- **数据库**：SQLite + Prisma ORM
+- **样式框架**：Tailwind CSS 3.3.0
+- **数据库**：Vercel Postgres (PostgreSQL)
 - **身份认证**：NextAuth.js
+- **数据访问**：原生 SQL 查询
 - **图片处理**：Sharp
 - **数据验证**：Zod
-- **文件上传**：本地存储
+- **文件上传**：Vercel Storage
 
-## 📦 安装和运行
+## 🚀 一键部署到 Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/lqvcool/chuanda)
+
+### 环境变量配置
+
+在 Vercel 项目设置中配置以下环境变量：
+
+```
+DATABASE_URL=postgres://[username]:[password]@[host]:[port]/[database]
+NEXTAUTH_SECRET=your-secure-secret-key
+NEXTAUTH_URL=https://your-app.vercel.app
+```
+
+### 部署步骤
+
+1. **Fork 项目**
+   ```bash
+   git clone https://github.com/lqvcool/chuanda.git
+   cd chuanda
+   ```
+
+2. **创建 Vercel Postgres 数据库**
+   - 访问 [Vercel Dashboard](https://vercel.com/dashboard)
+   - 进入 Storage > Postgres
+   - 创建新数据库
+
+3. **配置环境变量**
+   - 在 Vercel 项目设置中添加环境变量
+   - 复制数据库连接字符串到 `DATABASE_URL`
+
+4. **部署**
+   ```bash
+   npm install
+   npm run build
+   vercel --prod
+   ```
+
+## 📱 本地开发
 
 ### 环境要求
 - Node.js 18+
@@ -68,21 +109,15 @@ npm install
 3. **配置环境变量**
 ```bash
 cp .env.example .env
-# 编辑 .env 文件，设置必要的环境变量
+# 编辑 .env 文件，设置 DATABASE_URL 等变量
 ```
 
-4. **初始化数据库**
-```bash
-npx prisma generate
-npx prisma db push
-```
-
-5. **启动开发服务器**
+4. **启动开发服务器**
 ```bash
 npm run dev
 ```
 
-6. **访问应用**
+5. **访问应用**
 打开浏览器访问 http://localhost:3000
 
 ## 📱 使用指南
@@ -143,11 +178,8 @@ chuanda/
 │   └── ui/                       # UI 基础组件
 ├── lib/                          # 工具库
 │   ├── auth.ts                   # NextAuth 配置
-│   ├── prisma.ts                 # 数据库客户端
+│   ├── db.ts                     # Vercel Postgres 数据访问
 │   └── utils.ts                  # 工具函数
-├── prisma/                       # 数据库相关
-│   ├── schema.prisma             # 数据库模型
-│   └── migrations/               # 数据库迁移
 ├── public/                       # 静态资源
 │   └── uploads/                  # 上传文件目录
 └── types/                        # TypeScript 类型定义
@@ -184,10 +216,8 @@ npm run start        # 启动生产服务器
 
 ### 数据库操作
 ```bash
-npx prisma studio    # 打开数据库管理界面
-npx prisma generate  # 生成Prisma客户端
-npx prisma db push   # 同步数据库schema
-npx prisma migrate   # 运行数据库迁移
+# Vercel Postgres 通过 Vercel Dashboard 管理
+# 或使用 psql 命令行工具连接数据库
 ```
 
 ## 🚧 待实现功能
@@ -210,3 +240,13 @@ MIT License
 ## 📞 联系方式
 
 如有问题或建议，请通过GitHub Issues联系我。
+
+---
+
+## 🎉 Vercel 优化特性
+
+- ✅ **零配置部署** - 直接推送到 Vercel 即可运行
+- ✅ **自动扩展** - 无需手动扩容数据库
+- ✅ **数据持久化** - 不会丢失用户数据
+- ✅ **性能优化** - 原生 SQL 查询更快
+- ✅ **免费使用** - Vercel + Vercel Postgres 都有免费额度

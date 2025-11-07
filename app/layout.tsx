@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { SessionProviderWrapper } from "@/components/providers/SessionProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "穿衣搭配 - 智能衣橱管理",
-  description: "智能衣物管理和搭配推荐系统",
+  title: "川搭 - 智能衣橱管理系统",
+  description: "基于 Next.js 的智能衣橱管理和穿搭推荐系统",
+  keywords: ["衣橱管理", "穿搭推荐", "智能搭配", "AI", "时尚"],
+  authors: [{ name: "MiniMax Agent" }],
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -25,12 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SessionProviderWrapper>
+      <body className={inter.className}>
+        <div className="min-h-screen bg-gray-50">
           {children}
-        </SessionProviderWrapper>
+        </div>
       </body>
     </html>
   );
