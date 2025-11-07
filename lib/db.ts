@@ -73,28 +73,17 @@ export async function getClothingsByUserId(userId: string) {
 }
 
 export async function updateClothing(id: string, updates: Partial<Clothing>) {
-  const sets: string[] = [];
-  const values: any[] = [];
-  let paramCount = 1;
-
-  for (const [key, value] of Object.entries(updates)) {
-    if (key !== 'id' && value !== undefined) {
-      // 转换数据库字段名
-      const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      sets.push(`${dbKey} = $${paramCount}`);
-      values.push(value);
-      paramCount++;
-    }
+  // 简化的更新实现 - 暂时只支持更新名称
+  if (!updates.name) {
+    return null;
   }
 
-  if (sets.length === 0) return null;
-
-  values.push(id); // 添加 id 作为最后一个参数
-
   const result = await sql`
-    UPDATE clothings 
-    SET ${sql.unsafe(sets.join(', '))}, updated_at = NOW()
-    WHERE id = $${paramCount}
+    UPDATE clothings
+    SET
+      name = ${updates.name},
+      updated_at = NOW()
+    WHERE id = ${id}
     RETURNING *;
   `;
   return result.rows[0] as Clothing;
